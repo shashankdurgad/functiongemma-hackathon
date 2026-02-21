@@ -4,7 +4,14 @@ sys.path.insert(0, "cactus/python/src")
 os.environ["CACTUS_NO_CLOUD_TELE"] = "1"
 
 import json
-from main import generate_hybrid
+
+try:
+    from main import generate_hybrid
+    print("[benchmark] Using main.py (real Cactus + Gemini)")
+except (ImportError, ModuleNotFoundError) as e:
+    print(f"[benchmark] Cannot import main.py ({e})")
+    print("[benchmark] Falling back to test_local.py mock inference")
+    from test_local import generate_hybrid
 
 
 ############## Tool definitions ##############
