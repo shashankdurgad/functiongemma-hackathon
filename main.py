@@ -3,7 +3,6 @@ sys.path.insert(0, "cactus/python/src")
 functiongemma_path = "cactus/weights/functiongemma-270m-it"
 
 import json, os, time, re
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from cactus import cactus_init, cactus_complete, cactus_destroy
 from google import genai
 from google.genai import types
@@ -253,13 +252,7 @@ def cloud_decompose_query(content, tools):
 
 def _run_ensemble(local_fn, messages, tools, size):
     start = time.time()
-    if size == 1:
-        results = [local_fn(messages, tools)]
-    else:
-        with ThreadPoolExecutor(max_workers=size) as ex:
-            results = [f.result() for f in as_completed(
-                [ex.submit(local_fn, messages, tools) for _ in range(size)]
-            )]
+    results = [local_fn(messages, tools) for _ in range(size)]
     wall_ms = (time.time() - start) * 1000
     best, agreement = ensemble_vote(results)
     return best, agreement, wall_ms

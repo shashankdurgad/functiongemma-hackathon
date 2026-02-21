@@ -52,11 +52,17 @@ def submit(team, location):
     last_progress = ""
     while True:
         time.sleep(3)
-        resp = requests.get(
-            f"{SERVER_URL}/eval/status",
-            params={"id": submission_id},
-            headers=HEADERS,
-        )
+        try:
+            resp = requests.get(
+                f"{SERVER_URL}/eval/status",
+                params={"id": submission_id},
+                headers=HEADERS,
+                timeout=15,
+            )
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout,
+                requests.exceptions.SSLError) as e:
+            print(f"Connection error polling status, retrying... ({type(e).__name__})")
+            continue
         if resp.status_code != 200:
             print("Error polling status. Retrying...")
             continue
